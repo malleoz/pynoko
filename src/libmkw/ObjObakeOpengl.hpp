@@ -24,4 +24,5 @@ public:
 private:
     const std::vector<Field::ObjectObakeBlock *> &mBlockObjs;
     bolt::gfx::DrawableCuboid mCube;
+    bolt::gfx::Shader mShader;
 };
