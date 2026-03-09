@@ -4,6 +4,7 @@ add_subdirectory(extern/glfw EXCLUDE_FROM_ALL)
 add_library(libmkw
     KclOpengl.cpp
     MkwVis.cpp
+    ObjObakeOpengl.cpp
     RaceCamera.cpp
 )
 target_link_libraries(libmkw PUBLIC bolt::gfx bolt::math glfw libkinoko)

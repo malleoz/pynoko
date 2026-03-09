@@ -1,33 +1,33 @@
 #include "MkwVis.hpp"
 
-#include <GLFW/glfw3.h>
 #include "glad/glad.h"
+#include <GLFW/glfw3.h>
 
-#include <stdio.h>
 #include <iostream>
+#include <stdio.h>
 
 using namespace bolt;
 
-void error_callback(int error, const char* description) {
+void error_callback(int error, const char *description) {
     fprintf(stderr, "Error: %s\n", description);
 }
 
-void GLAPIENTRY openGLDebugCallback(GLenum source, GLenum type, GLuint id,
-                                    GLenum severity, GLsizei length,
-                                    const GLchar *message, const void *userParam) {
+void GLAPIENTRY openGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+        GLsizei length, const GLchar *message, const void *userParam) {
     std::cerr << "OpenGL Debug Message: " << message << std::endl;
     exit(-1);
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
 }
 
 MkwVis::~MkwVis() {
     delete mCamera;
     delete mKclOgl;
+    delete mObjObakeOgl;
 }
 
 void MkwVis::createWindow(int width, int height) {
@@ -43,13 +43,13 @@ void MkwVis::createWindow(int width, int height) {
     }
 
     glfwMakeContextCurrent(mWindow);
-    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
     glfwSetKeyCallback(mWindow, key_callback);
 
     // debug
     glEnable(GL_DEBUG_OUTPUT);
-    //glDebugMessageCallback(openGLDebugCallback, nullptr);
+    // glDebugMessageCallback(openGLDebugCallback, nullptr);
 
     glfwGetFramebufferSize(mWindow, &mWidth, &mHeight);
     glViewport(0, 0, width, height);
@@ -60,9 +60,15 @@ void MkwVis::load() {
     mCamera = new RaceCamera(mWidth / (float)mHeight);
     mKclOgl = new KclOpengl(mKcl->prisms(), mKcl->vertices(), mKcl->nrms());
     mKclOgl->load();
+
+    mObjObakeOgl = mObakeMgr ? new ObjObakeOpengl(mObakeMgr->blocks()) : nullptr;
+
+    if (mObjObakeOgl) {
+        mObjObakeOgl->load();
+    }
 }
 
-void MkwVis::setPose(const EGG::Vector3f& pos, const EGG::Quatf& rot) {
+void MkwVis::setPose(const EGG::Vector3f &pos, const EGG::Quatf &rot) {
     // same ABI
     mCamera->setPos(pos);
     mCamera->setRot(rot);
@@ -80,6 +86,7 @@ void MkwVis::draw() {
 
     mCamera->onDraw();
     mKclOgl->draw();
+    mObjObakeOgl->draw();
 
     glfwSwapBuffers(mWindow);
 }

@@ -1,27 +1,29 @@
 #pragma once
 
-#include <vector>
 #include <span>
+#include <vector>
 
-#include <egg/math/Vector.hh>
 #include "game/field/KColData.hh"
+#include <egg/math/Vector.hh>
 
 #include "glad/glad.h"
 
-#include "gfx/Shader.hpp"
 #include "gfx/Color.hpp"
+#include "gfx/Shader.hpp"
 
 struct KclOglVtx {
     EGG::Vector3f vtx;
     EGG::Vector3f fnrm;
     bolt::gfx::Color color;
 
-    KclOglVtx(EGG::Vector3f vtx, EGG::Vector3f fnrm, bolt::gfx::Color color) : vtx(vtx), fnrm(fnrm), color(color) {}
+    KclOglVtx(EGG::Vector3f vtx, EGG::Vector3f fnrm, bolt::gfx::Color color)
+        : vtx(vtx), fnrm(fnrm), color(color) {}
 };
 
 class KclOpengl {
 public:
-    KclOpengl(std::span<Field::KColData::KCollisionPrism> prisms, std::span<EGG::Vector3f> vertices, std::span<EGG::Vector3f> nrms);
+    KclOpengl(std::span<Field::KColData::KCollisionPrism> prisms, std::span<EGG::Vector3f> vertices,
+            std::span<EGG::Vector3f> nrms);
 
     void load();
     void draw();
