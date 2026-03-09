@@ -11,7 +11,8 @@
 using namespace bolt;
 using namespace bolt::gfx;
 
-static EGG::Vector3f GetVertex(f32 height, const EGG::Vector3f &vertex1, const EGG::Vector3f &fnrm, const EGG::Vector3f &enrm3, const EGG::Vector3f &enrm) {
+static EGG::Vector3f GetVertex(f32 height, const EGG::Vector3f &vertex1, const EGG::Vector3f &fnrm,
+        const EGG::Vector3f &enrm3, const EGG::Vector3f &enrm) {
     EGG::Vector3f cross = fnrm.cross(enrm);
     f32 dp = cross.ps_dot(enrm3);
     cross *= (height / dp);
@@ -65,22 +66,22 @@ const ProgramDescriptor& KclDrawable::programDescriptor() const {
 }
 
 const gfx::Color colorTable[] = {
-    gfx::Color(0.9f, 0.9f, 0.9f, 1.0f),      // 0x0 road
-    gfx::Color(0.0f, 0.5f, 0.5f, 1.0f),      // 0x1 slippery road (no slow down)
-    gfx::Color(1.0f, 0.85f, 0.3f, 1.0f),     // 0x2 weak off-road road
-    gfx::Color(0.2f, 0.45f, 0.15f, 1.0f),    // 0x3 off-road road
-    gfx::Color(0.5f, 0.25f, 0.0f, 1.0f),     // 0x4 heavy off-road road
-    gfx::Color(0.05f, 0.6f, 0.95f, 1.0f),    // 0x5 slippery road road (slowdown)
-    gfx::Color(1.0f, 0.3f, 0.0f, 1.0f),      // 0x6 boost
-    gfx::Color(1.0f, 0.6f, 0.1f, 1.0f),      // 0x7 boost ramp
-    gfx::Color(1.0f, 0.85f, 0.1f, 1.0f),     // 0x8 jump ramp
-    gfx::Color(1.0f, 0.85f, 0.1f, 1.0f),     // 0x9 item road
-    gfx::Color(0.25f, 0.1f, 0.0f, 1.0f),     // 0xA Solid fall
-    gfx::Color(0.0f, 0.1f, 1.0f, 1.0f),      // 0xB Moving water
-    gfx::Color(0.5f, 0.5f, 0.5f, 1.0f),      // 0xC Wall
-    gfx::Color(0.75f, 0.75f, 0.75f, 1.0f),   // 0xD Invisible wall
-    gfx::Color(0.85f, 0.85f, 0.75f, 1.0f),   // 0xE Item wall
-    gfx::Color(0.5f, 0.5f, 0.5f, 1.0f),      // 0xF Wall 2
+        gfx::Color(0.9f, 0.9f, 0.9f, 1.0f),    // 0x0 road
+        gfx::Color(0.0f, 0.5f, 0.5f, 1.0f),    // 0x1 slippery road (no slow down)
+        gfx::Color(1.0f, 0.85f, 0.3f, 1.0f),   // 0x2 weak off-road road
+        gfx::Color(0.2f, 0.45f, 0.15f, 1.0f),  // 0x3 off-road road
+        gfx::Color(0.5f, 0.25f, 0.0f, 1.0f),   // 0x4 heavy off-road road
+        gfx::Color(0.05f, 0.6f, 0.95f, 1.0f),  // 0x5 slippery road road (slowdown)
+        gfx::Color(1.0f, 0.3f, 0.0f, 1.0f),    // 0x6 boost
+        gfx::Color(1.0f, 0.6f, 0.1f, 1.0f),    // 0x7 boost ramp
+        gfx::Color(1.0f, 0.85f, 0.1f, 1.0f),   // 0x8 jump ramp
+        gfx::Color(1.0f, 0.85f, 0.1f, 1.0f),   // 0x9 item road
+        gfx::Color(0.25f, 0.1f, 0.0f, 1.0f),   // 0xA Solid fall
+        gfx::Color(0.0f, 0.1f, 1.0f, 1.0f),    // 0xB Moving water
+        gfx::Color(0.5f, 0.5f, 0.5f, 1.0f),    // 0xC Wall
+        gfx::Color(0.75f, 0.75f, 0.75f, 1.0f), // 0xD Invisible wall
+        gfx::Color(0.85f, 0.85f, 0.75f, 1.0f), // 0xE Item wall
+        gfx::Color(0.5f, 0.5f, 0.5f, 1.0f),    // 0xF Wall 2
 
     gfx::Color(0.75f, 0.25f, 0.7f, 1.0f),    // 0x10 Fall boundary
     gfx::Color(0.65f, 0.4f, 0.5f, 1.0f),     // 0x11 Cannon trigger
@@ -102,9 +103,11 @@ const gfx::Color colorTable[] = {
 
 void KclDrawable::processData() {
     int i = 0;
-    for (const auto& prism : m_prisms) {
+    for (const auto &prism : m_prisms) {
         i++;
-        if (i == 1) continue;
+        if (i == 1) {
+            continue;
+        }
         const EGG::Vector3f &vtx1 = m_vertices[prism.pos_i];
         const EGG::Vector3f &fnrm = m_nrms[prism.fnrm_i];
         const EGG::Vector3f &enrm1 = m_nrms[prism.enrm1_i];
@@ -115,7 +118,9 @@ void KclDrawable::processData() {
         EGG::Vector3f vtx3 = GetVertex(prism.height, vtx1, fnrm, enrm3, enrm2);
 
         u16 type = KCL_ATTRIBUTE_TYPE(prism.attribute);
-        if (type == 0x12 || type == 0x1a || type == 0x18 || type == 0x1b) continue;
+        if (type == 0x12 || type == 0x1a || type == 0x18 || type == 0x1b) {
+            continue;
+        }
         gfx::Color color = colorTable[type];
 
         // Add the vertices to the triangle list
