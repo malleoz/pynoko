@@ -22,7 +22,7 @@ public:
     void draw();
 
 private:
-    const std::vector<Field::ObjectObakeBlock *> &mBlockObjs;
-    bolt::gfx::DrawableCuboid mCube;
-    bolt::gfx::Shader mShader;
+    void processData(const std::vector<Field::ObjectObakeBlock *> &blockObjs);
+
+    std::vector<bolt::gfx::DrawableCuboid> mCube;
 };
