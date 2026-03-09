@@ -196,7 +196,7 @@ void KHostSystem::init() {
     KeepDenormals();
 
 #ifdef PYNOKO_BUILD_GUI
-    mkwVis = new MkwVis(Field::CourseColMgr::Instance()->data());
+    mkwVis = new MkwVis(Field::CourseColMgr::Instance()->data(), Field::ObjectDrivableDirector::Instance()->obakeManager());
     mkwVis->createWindow(1200, 800);
     mkwVis->load();
 #endif
