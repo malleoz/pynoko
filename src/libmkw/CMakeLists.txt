@@ -5,8 +5,9 @@ add_subdirectory(extern/glfw EXCLUDE_FROM_ALL)
 add_library(libmkw
     KclDrawable.cpp
     MkwVis.cpp
-    ObjObakeOpengl.cpp
+    ObakeDrawable.cpp
     RaceCamera.cpp
+    VehicleHitboxDrawable.cpp
 )
 target_link_libraries(libmkw PUBLIC bolt::gfx bolt::math glfw libkinoko glad)
 target_compile_definitions(libmkw PRIVATE LIBMKW_ROOT="${CMAKE_CURRENT_SOURCE_DIR}")

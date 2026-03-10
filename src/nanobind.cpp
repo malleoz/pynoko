@@ -24,10 +24,10 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
 
-#include <sstream>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #ifdef PYNOKO_BUILD_GUI
 #include "libmkw/MkwVis.hpp"
@@ -40,7 +40,7 @@
             std::cerr << "Runtime assertion failed: " << message << std::endl; \
             std::terminate(); \
         } \
-    } while(0)
+    } while (0)
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -48,7 +48,7 @@ using namespace nb::literals;
 using namespace System;
 using namespace Host;
 
-static void* loadFile(const std::filesystem::path& fullpath, unsigned int& size) {
+static void *loadFile(const std::filesystem::path &fullpath, unsigned int &size) {
     std::ifstream file(fullpath, std::ios::binary | std::ios::ate);
     RUNTIME_CHECK(!!file, ("Could not open file " + fullpath.string()).c_str());
 
@@ -57,13 +57,12 @@ static void* loadFile(const std::filesystem::path& fullpath, unsigned int& size)
     file.seekg(0, std::ios::beg);
 
     // Allocate buffer and read the file
-    void* buffer = malloc(size);
-    file.read((char*)buffer, size);
+    void *buffer = malloc(size);
+    file.read((char *)buffer, size);
     RUNTIME_CHECK(!!file, ("Error reading file " + fullpath.string()).c_str());
 
     return buffer;
 }
-
 
 #if defined(__arm64__) || defined(__aarch64__)
 static void FlushDenormalsToZero() {
@@ -130,12 +129,14 @@ class KHostSystem {
     const u8 *currentRawGhost = nullptr; // TODO: figure out lifetime
 
 #ifdef PYNOKO_BUILD_GUI
-  MkwVis* mkwVis;
+    MkwVis *mkwVis;
 #endif
 
 public:
 #ifdef PYNOKO_BUILD_GUI
-  ~KHostSystem() { mkwVis->destroyWindow(); }
+    ~KHostSystem() {
+        mkwVis->destroyWindow();
+    }
 #endif
 
     // call one of the following functions before init to select a mode
@@ -172,7 +173,7 @@ void KHostSystem::configureGhost(const char *rkgFile) {
         delete currentRawGhost;
     }
     unsigned int ghostSize;
-    currentRawGhost = (u8*)loadFile(rkgFile, ghostSize);
+    currentRawGhost = (u8 *)loadFile(rkgFile, ghostSize);
 
     System::RaceConfig::RegisterInitCallback(
             [this](System::RaceConfig *config, void *arg) {
@@ -196,7 +197,9 @@ void KHostSystem::init() {
     KeepDenormals();
 
 #ifdef PYNOKO_BUILD_GUI
-    mkwVis = new MkwVis(Field::CourseColMgr::Instance()->data(), Field::ObjectDrivableDirector::Instance()->obakeManager());
+    mkwVis = new MkwVis(Field::CourseColMgr::Instance()->data(),
+            Field::ObjectDrivableDirector::Instance()->obakeManager(),
+            kartObjectProxy().collisionGroup());
     mkwVis->createWindow(1200, 800);
     mkwVis->load();
 #endif
@@ -261,9 +264,24 @@ void KHostSystem::calc() {
     KeepDenormals();
 
 #ifdef PYNOKO_BUILD_GUI
+    constexpr f32 BEHIND_OFFSET = 200.0f;
+
     mkwVis->update();
     const Kart::KartObjectProxy &proxy = kartObjectProxy();
-    mkwVis->setPose(proxy.pos(), proxy.mainRot());
+
+    EGG::Vector3f pos = proxy.pos();
+    const auto &mainRot = proxy.mainRot();
+    EGG::Vector3f forward = mainRot.rotateVector(EGG::Vector3f::ez);
+    pos = pos - forward * BEHIND_OFFSET;
+
+    if (pos.y < 2660.0f) {
+        EGG::Vector3f flatBack = EGG::Vector3f(-forward.x, 0.0f, -forward.z);
+        flatBack.normalise();
+        pos += flatBack * BEHIND_OFFSET;
+        pos.y = 2600.0f;
+    }
+
+    mkwVis->setPose(pos, proxy.mainRot());
     mkwVis->draw();
 #endif
 }

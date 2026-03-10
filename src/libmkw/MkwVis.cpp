@@ -31,6 +31,7 @@ MkwVis::~MkwVis() {
     delete mScene;
     delete mRenderSystem;
     delete mObakeDrawable;
+    delete mVehicleHitboxDrawable;
 }
 
 void MkwVis::createWindow(int width, int height) {
@@ -64,16 +65,18 @@ void MkwVis::load() {
 
     // course KCL
     mKclDrawable = new KclDrawable(mKcl->prisms(), mKcl->vertices(), mKcl->nrms());
-    mObakeDrawable = mObakeMgr ? new ObjObakeOpengl(mObakeMgr->blocks()) : nullptr;
-
-    if (mObjObakeOgl) {
-        mObjObakeOgl->load();
-    }
+    mObakeDrawable = mObakeMgr ? new ObakeDrawable(mObakeMgr->blocks()) : nullptr;
+    mVehicleHitboxDrawable = new VehicleHitboxDrawable(mCollisionGroup->hitboxes());
 
     gfx::SceneNode &sceneRoot = mScene->root();
     sceneRoot.addChild(mCamera);
     sceneRoot.addChild(mKclDrawable);
-    sceneRoot.addChild(mObakeDrawable);
+
+    if (mObakeDrawable) {
+        mObakeDrawable->registerBlocks(sceneRoot);
+    }
+
+    mVehicleHitboxDrawable->registerSpheroids(sceneRoot);
 
     mScene->loadAll();
 }
@@ -81,6 +84,7 @@ void MkwVis::load() {
 void MkwVis::setPose(const EGG::Vector3f &pos, const EGG::Quatf &rot) {
     mCamera->setPos(pos);
     mCamera->setRot(rot);
+    mVehicleHitboxDrawable->calcSpheroids();
 }
 
 void MkwVis::update() {
